@@ -2,7 +2,7 @@ stages:
   - build
 
 variables:
-  MY_BRANCH: "v1.4.7"
+  MY_BRANCH: "beta"
 
 job1:
   stage: build
