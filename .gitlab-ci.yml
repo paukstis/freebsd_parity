@@ -1,0 +1,29 @@
+stages:
+  - build
+
+variables:
+  MY_BRANCH: "master"
+
+job1:
+  stage: build
+  script:
+    - cd ~/src/parity
+    - git reset --hard
+    - git checkout master
+    - git pull
+    - git checkout $MY_BRANCH
+    - export VERSION=$(grep ^version Cargo.toml | cut -d '"' -f2 | tr -d "\n")
+    - export COMMIT=$(git rev-parse --short HEAD | tr -d "\n")
+    - if [ ! -f ~/parity_${VERSION}_amd64_freebsd.${COMMIT} ]; then
+        patch --batch -p1 --dry-run < $CI_PROJECT_DIR/parity.patch &&
+        patch --batch -p1 < $CI_PROJECT_DIR/parity.patch &&
+        git clean -f &&
+        cargo clean &&
+        cargo update --package gcc --precise 0.3.41 &&
+        cargo update --package openssl --precise 0.9.4 &&
+        OPENSSL_INCLUDE_DIR=/usr/include OPENSSL_LIB_DIR=/usr/lib cargo build --release &&
+        strip target/release/parity &&
+        cp target/release/parity ~/parity_${VERSION}_amd64_freebsd.${COMMIT} ;
+      fi
+  only:
+    - master

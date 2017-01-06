@@ -1,0 +1,112 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 18ada1185..703eeac9d 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -93,4 +93,4 @@ name = "parity"
+ [profile.release]
+ debug = false
+ lto = false
+-panic = "abort"
++#panic = "abort"
+diff --git a/db/Cargo.toml b/db/Cargo.toml
+index d0e45a4..b4e54cd 100644
+--- a/db/Cargo.toml
++++ b/db/Cargo.toml
+@@ -17,7 +17,7 @@ ethcore-ipc = { path = "../ipc/rpc" }
+ rocksdb = { git = "https://github.com/ethcore/rust-rocksdb" }
+ semver = "0.5"
+ ethcore-ipc-nano = { path = "../ipc/nano" }
+-nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
++nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+ crossbeam = "0.2"
+ ethcore-util = { path = "../util" }
+ 
+diff --git a/ipc/hypervisor/Cargo.toml b/ipc/hypervisor/Cargo.toml
+index 21955bd..9fe092b 100644
+--- a/ipc/hypervisor/Cargo.toml
++++ b/ipc/hypervisor/Cargo.toml
+@@ -9,7 +9,7 @@ build = "build.rs"
+ 
+ [dependencies]
+ ethcore-ipc = { path = "../rpc" }
+-nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
++nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+ ethcore-ipc-nano = { path = "../nano" }
+ semver = "0.5"
+ log = "0.3"
+diff --git a/ipc/nano/Cargo.toml b/ipc/nano/Cargo.toml
+index 7d559db..9499ae6 100644
+--- a/ipc/nano/Cargo.toml
++++ b/ipc/nano/Cargo.toml
+@@ -8,6 +8,6 @@ license = "GPL-3.0"
+ 
+ [dependencies]
+ ethcore-ipc = { path = "../rpc" }
+-nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
++nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+ log = "0.3"
+ lazy_static = "0.2"
+diff --git a/ipc/rpc/Cargo.toml b/ipc/rpc/Cargo.toml
+index a89d1a9..167043b 100644
+--- a/ipc/rpc/Cargo.toml
++++ b/ipc/rpc/Cargo.toml
+@@ -8,6 +8,6 @@ license = "GPL-3.0"
+ 
+ [dependencies]
+ ethcore-devtools = { path = "../../devtools" }
+-nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
++nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+ ethcore-util = { path = "../../util" }
+ semver = "0.5"
+diff --git a/ipc/tests/Cargo.toml b/ipc/tests/Cargo.toml
+index 1e29c5c..21d431a 100644
+--- a/ipc/tests/Cargo.toml
++++ b/ipc/tests/Cargo.toml
+@@ -11,7 +11,7 @@ path = "run.rs"
+ ethcore-ipc = { path = "../rpc" }
+ ethcore-devtools = { path = "../../devtools" }
+ semver = "0.5"
+-nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
++nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+ ethcore-ipc-nano = { path = "../nano" }
+ ethcore-util = { path = "../../util" }
+ log = "0.3"
+diff --git a/rpc_client/Cargo.toml b/rpc_client/Cargo.toml
+index e5c8e9b..00d9039 100644
+--- a/rpc_client/Cargo.toml
++++ b/rpc_client/Cargo.toml
+@@ -17,7 +17,7 @@ serde_json = "0.8"
+ tempdir = "0.3.5"
+ url = "1.2.0"
+ jsonrpc-core = { git = "https://github.com/ethcore/jsonrpc.git" }
+-ws = { git = "https://github.com/ethcore/ws-rs.git", branch = "mio-upstream-stable" }
++ws = { git = "https://github.com/paukstis/ws-rs.git", branch = "mio-upstream-stable" }
+ ethcore-rpc = { path = "../rpc" }
+ ethcore-signer = { path = "../signer" }
+ ethcore-util = { path = "../util" }
+diff --git a/signer/Cargo.toml b/signer/Cargo.toml
+index abf5d77..61771ee 100644
+--- a/signer/Cargo.toml
++++ b/signer/Cargo.toml
+@@ -16,7 +16,7 @@ jsonrpc-core = { git = "https://github.com/ethcore/jsonrpc.git" }
+ log = "0.3"
+ env_logger = "0.3"
+ parity-dapps-glue = { version = "1.4", optional = true }
+-ws = { git = "https://github.com/ethcore/ws-rs.git", branch = "mio-upstream-stable" }
++ws = { git = "https://github.com/paukstis/ws-rs.git", branch = "mio-upstream-stable" }
+ ethcore-util = { path = "../util" }
+ ethcore-io = { path = "../util/io" }
+ ethcore-rpc = { path = "../rpc" }
+diff --git a/util/https-fetch/Cargo.toml b/util/https-fetch/Cargo.toml
+index b45904f..26451d0 100644
+--- a/util/https-fetch/Cargo.toml
++++ b/util/https-fetch/Cargo.toml
+@@ -10,7 +10,7 @@ authors = ["Parity Technologies <admin@parity.io>"]
+ log = "0.3"
+ ethabi = "0.2.2"
+ mio = { git = "https://github.com/ethcore/mio", branch = "v0.5.x" }
+-rustls = { git = "https://github.com/ctz/rustls" }
++rustls = { git = "https://github.com/paukstis/rustls", rev = "9ce030a0187889dcc8243d4511b8f74ed84d1aef" }
+ clippy = { version = "0.0.85", optional = true}
+ 
+ [features]
