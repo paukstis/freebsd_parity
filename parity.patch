@@ -97,16 +97,3 @@ index abf5d77..61771ee 100644
  ethcore-util = { path = "../util" }
  ethcore-io = { path = "../util/io" }
  ethcore-rpc = { path = "../rpc" }
-diff --git a/util/https-fetch/Cargo.toml b/util/https-fetch/Cargo.toml
-index b45904f..26451d0 100644
---- a/util/https-fetch/Cargo.toml
-+++ b/util/https-fetch/Cargo.toml
-@@ -10,7 +10,7 @@ authors = ["Parity Technologies <admin@parity.io>"]
- log = "0.3"
- ethabi = "0.2.2"
- mio = { git = "https://github.com/ethcore/mio", branch = "v0.5.x" }
--rustls = { git = "https://github.com/ctz/rustls" }
-+rustls = { git = "https://github.com/paukstis/rustls", rev = "9ce030a0187889dcc8243d4511b8f74ed84d1aef" }
- clippy = { version = "0.0.85", optional = true}
- 
- [features]
