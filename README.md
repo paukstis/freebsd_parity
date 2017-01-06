@@ -4,7 +4,7 @@
 Tested with following components:
 - FreeBSD 11
 - Rust 1.13, 1.14
-- Parity 1.4.6, 1.4.7
+- Parity 1.4.6, 1.4.7, 1.4.8
 
 ## Requirements
 Freshly installed FreeBSD system or jail needs following packages to be installed:
@@ -14,16 +14,11 @@ pkg install lang/rust devel/cargo devel/git net/nanomsg
 For runtime only `net/nanomsg` is required.
 
 ## Patching
-Make sure to use correct branches with `git checkout ..`
+Make sure to use correct branches with `-b v..`:
 ```shell
 cd ~/src
-git clone https://github.com/ethcore/parity.git
-cd parity
-git checkout v1.4.7
-cd ~/src
-git clone https://mug.uoga.net/freebsd/freebsd_parity.git
-cd freebsd_parity
-git checkout v1.4
+git clone https://github.com/ethcore/parity.git -b v1.4.8 parity
+git clone https://mug.uoga.net/freebsd/freebsd_parity.git -b v1.4 freebsd_parity
 ```
 
 Check if patch will succeed with --dry-run, apply it, then clean .orig files
