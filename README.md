@@ -23,6 +23,7 @@ git clone https://mug.uoga.net/freebsd/freebsd_parity.git
 
 Check if patch will succeed with --dry-run, apply it, then clean .orig files
 ```shell
+cd ~/src/parity
 patch --dry-run --batch --quiet -p1 < ../freebsd_parity/parity.patch && patch -p1 < ../freebsd_parity/parity.patch && git clean -f && echo DONE
 ```
 Confirm that last line says `DONE`, which means patch was successful.
