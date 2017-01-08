@@ -1,17 +1,18 @@
+![build status](https://mug.uoga.net/freebsd/freebsd_parity/badges/master/build.svg)
 ### Building [Parity](https://github.com/ethcore/parity) on [FreeBSD](https://www.freebsd.org)
 
 ## Status
 Tested with following components:
 - FreeBSD 11
 - Rust 1.13, 1.14
-- Parity v1.5.x (master)
+- Parity master branch
 
 ## Requirements
-Freshly installed FreeBSD system or jail needs following packages to be installed:
+To build Parity on FreeBSD a freshly installed system or jail needs following packages to be installed:
 ```shell
-pkg install lang/rust devel/cargo devel/git net/nanomsg
+pkg install nanomsg cargo git
 ```
-For runtime only `net/nanomsg` is required.
+For runtime only `nanomsg` is required.
 
 ## Patching
 
