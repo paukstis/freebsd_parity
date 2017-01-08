@@ -7,14 +7,13 @@ Tested with following components:
 - Parity 1.4.6, 1.4.7, 1.4.8
 
 ## Requirements
-Freshly installed FreeBSD system or jail needs following packages to be installed:
+To build Parity on FreeBSD a freshly installed system or jail needs following packages to be installed:
 ```shell
-pkg install lang/rust devel/cargo devel/git net/nanomsg
+pkg install nanomsg cargo git
 ```
-For runtime only `net/nanomsg` is required.
+For runtime only `nanomsg` is required.
 
 ## Patching
-Make sure to use correct branches with `-b v..`:
 ```shell
 cd ~/src
 git clone https://github.com/ethcore/parity.git -b v1.4.8 parity
