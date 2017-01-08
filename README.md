@@ -1,3 +1,4 @@
+[![build status](https://mug.uoga.net/freebsd/freebsd_parity/badges/v1.4/build.svg)](https://mug.uoga.net/freebsd/freebsd_parity/builds)
 ### Building [Parity](https://github.com/ethcore/parity) on [FreeBSD](https://www.freebsd.org)
 
 ## Status
