@@ -5,7 +5,7 @@
 Tested with following components:
 - FreeBSD 11
 - Rust 1.13, 1.14
-- Parity master branch
+- Parity 1.5 branch
 
 ## Requirements
 To build Parity on FreeBSD a freshly installed system or jail needs following packages to be installed:
@@ -18,7 +18,7 @@ For runtime only `nanomsg` is required.
 
 ```shell
 cd ~/src
-git clone https://github.com/ethcore/parity.git
+git clone https://github.com/ethcore/parity.git -b v1.5.0 parity
 git clone https://mug.uoga.net/freebsd/freebsd_parity.git
 ```
 
