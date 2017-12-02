@@ -1,89 +1,484 @@
 diff --git a/db/Cargo.toml b/db/Cargo.toml
-index d0e45a4..b4e54cd 100644
+index 296d1cb22..7f6b45a70 100644
 --- a/db/Cargo.toml
 +++ b/db/Cargo.toml
 @@ -17,7 +17,7 @@ ethcore-ipc = { path = "../ipc/rpc" }
- rocksdb = { git = "https://github.com/ethcore/rust-rocksdb" }
+ rocksdb = { git = "https://github.com/paritytech/rust-rocksdb" }
  semver = "0.5"
  ethcore-ipc-nano = { path = "../ipc/nano" }
--nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
-+nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+-nanomsg = { git = "https://github.com/paritytech/nanomsg.rs.git" }
++nanomsg = { git = "https://github.com/paukstis/nanomsg.rs.git", rev = "89492cbb3f84ad95f3625a6e72a0d9ba0cccc09b" }
  crossbeam = "0.2"
  ethcore-util = { path = "../util" }
  
+diff --git a/ethcore/Cargo.toml b/ethcore/Cargo.toml
+index 4f4dbd334..ba1035e01 100644
+--- a/ethcore/Cargo.toml
++++ b/ethcore/Cargo.toml
+@@ -43,7 +43,6 @@ ethcore-ipc-nano = { path = "../ipc/nano" }
+ rlp = { path = "../util/rlp" }
+ ethcore-stratum = { path = "../stratum" }
+ ethcore-bloom-journal = { path = "../util/bloom" }
+-hardware-wallet = { path = "../hw" }
+ stats = { path = "../util/stats" }
+ 
+ [dependencies.hyper]
+diff --git a/ethcore/src/account_provider/mod.rs b/ethcore/src/account_provider/mod.rs
+index 5f634ca10..5f8270dfe 100755
+--- a/ethcore/src/account_provider/mod.rs
++++ b/ethcore/src/account_provider/mod.rs
+@@ -29,7 +29,7 @@ use ethstore::{SimpleSecretStore, SecretStore, Error as SSError, EthStore, EthMu
+ use ethstore::dir::MemoryDirectory;
+ use ethstore::ethkey::{Address, Message, Public, Secret, Random, Generator};
+ use ethjson::misc::AccountMeta;
+-use hardware_wallet::{Error as HardwareError, HardwareWalletManager, KeyPath};
++//use hardware_wallet::{Error as HardwareError, HardwareWalletManager, KeyPath};
+ pub use ethstore::ethkey::Signature;
+ pub use ethstore::{Derivation, IndexDerivation};
+ 
+@@ -60,7 +60,7 @@ pub enum SignError {
+ 	/// Account does not exist.
+ 	NotFound,
+ 	/// Low-level hardware device error.
+-	Hardware(HardwareError),
++	//Hardware(HardwareError),
+ 	/// Low-level error from store
+ 	SStore(SSError)
+ }
+@@ -70,17 +70,17 @@ impl fmt::Display for SignError {
+ 		match *self {
+ 			SignError::NotUnlocked => write!(f, "Account is locked"),
+ 			SignError::NotFound => write!(f, "Account does not exist"),
+-			SignError::Hardware(ref e) => write!(f, "{}", e),
++			//SignError::Hardware(ref e) => write!(f, "{}", e),
+ 			SignError::SStore(ref e) => write!(f, "{}", e),
+ 		}
+ 	}
+ }
+ 
+-impl From<HardwareError> for SignError {
+-	fn from(e: HardwareError) -> Self {
+-		SignError::Hardware(e)
+-	}
+-}
++//impl From<HardwareError> for SignError {
++//	fn from(e: HardwareError) -> Self {
++//		SignError::Hardware(e)
++//	}
++//}
+ 
+ impl From<SSError> for SignError {
+ 	fn from(e: SSError) -> Self {
+@@ -122,7 +122,8 @@ pub struct AccountProvider {
+ 	/// Accounts unlocked with rolling tokens
+ 	transient_sstore: EthMultiStore,
+ 	/// Accounts in hardware wallets.
+-	hardware_store: Option<HardwareWalletManager>,
++	//hardware_store: Option<HardwareWalletManager>,
++	hardware_store: Option<Address>,
+ 	/// Disallowed accounts.
+ 	blacklisted_accounts: Vec<Address>,
+ }
+@@ -151,15 +152,15 @@ impl AccountProvider {
+ 	/// Creates new account provider.
+ 	pub fn new(sstore: Box<SecretStore>, settings: AccountProviderSettings) -> Self {
+ 		let mut hardware_store = None;
+-		if settings.enable_hardware_wallets {
+-			match HardwareWalletManager::new() {
+-				Ok(manager) => {
+-					manager.set_key_path(if settings.hardware_wallet_classic_key { KeyPath::EthereumClassic } else { KeyPath::Ethereum });
+-					hardware_store = Some(manager)
+-				},
+-				Err(e) => debug!("Error initializing hardware wallets: {}", e),
+-			}
+-		}
++	//	if settings.enable_hardware_wallets {
++	//		match HardwareWalletManager::new() {
++	//			Ok(manager) => {
++	//				manager.set_key_path(if settings.hardware_wallet_classic_key { KeyPath::EthereumClassic } else { KeyPath::Ethereum });
++	//				hardware_store = Some(manager)
++	//			},
++	//			Err(e) => debug!("Error initializing hardware wallets: {}", e),
++	//		}
++	//	}
+ 
+ 		// Remove blacklisted accounts from address book.
+ 		let mut address_book = AddressBook::new(&sstore.local_path());
+@@ -263,10 +264,10 @@ impl AccountProvider {
+ 	}
+ 
+ 	/// Returns addresses of hardware accounts.
+-	pub fn hardware_accounts(&self) -> Result<Vec<Address>, Error> {
+-		let accounts = self.hardware_store.as_ref().map_or(Vec::new(), |h| h.list_wallets());
+-		Ok(accounts.into_iter().map(|a| a.address).collect())
+-	}
++///	pub fn hardware_accounts(&self) -> Result<Vec<Address>, Error> {
++///		let accounts = self.hardware_store.as_ref().map_or(Vec::new(), |h| h.list_wallets());
++///		Ok(accounts.into_iter().map(|a| a.address).collect())
++///	}
+ 
+ 	/// Sets addresses of accounts exposed for unknown dapps.
+ 	/// `None` means that all accounts will be visible.
+@@ -468,35 +469,35 @@ impl AccountProvider {
+ 	}
+ 
+ 	/// Returns each hardware account along with name and meta.
+-	pub fn hardware_accounts_info(&self) -> Result<HashMap<Address, AccountMeta>, Error> {
+-		let r = self.hardware_accounts()?
+-			.into_iter()
+-			.map(|address| (address.clone(), self.account_meta(address).ok().unwrap_or_default()))
+-			.collect();
+-		Ok(r)
+-	}
++///	pub fn hardware_accounts_info(&self) -> Result<HashMap<Address, AccountMeta>, Error> {
++///		let r = self.hardware_accounts()?
++///			.into_iter()
++///			.map(|address| (address.clone(), self.account_meta(address).ok().unwrap_or_default()))
++///			.collect();
++///		Ok(r)
++///	}
+ 
+ 	/// Returns each hardware account along with name and meta.
+-	pub fn is_hardware_address(&self, address: Address) -> bool {
+-		self.hardware_store.as_ref().and_then(|s| s.wallet_info(&address)).is_some()
+-	}
++///	pub fn is_hardware_address(&self, address: Address) -> bool {
++///		self.hardware_store.as_ref().and_then(|s| s.wallet_info(&address)).is_some()
++///	}
+ 
+ 	/// Returns each account along with name and meta.
+ 	pub fn account_meta(&self, address: Address) -> Result<AccountMeta, Error> {
+-		if let Some(info) = self.hardware_store.as_ref().and_then(|s| s.wallet_info(&address)) {
+-			Ok(AccountMeta {
+-				name: info.name,
+-				meta: info.manufacturer,
+-				uuid: None,
+-			})
+-		} else {
++//		if let Some(info) = self.hardware_store.as_ref().and_then(|s| s.wallet_info(&address)) {
++//			Ok(AccountMeta {
++//				name: info.name,
++//				meta: info.manufacturer,
++//				uuid: None,
++//			})
++//		} else
++//             {
+ 			let account = self.sstore.account_ref(&address)?;
+ 			Ok(AccountMeta {
+ 				name: self.sstore.name(&account)?,
+ 				meta: self.sstore.meta(&account)?,
+ 				uuid: self.sstore.uuid(&account).ok().map(Into::into),	// allowed to not have a Uuid
+ 			})
+-		}
+ 	}
+ 
+ 	/// Returns each account along with name and meta.
+@@ -726,14 +727,14 @@ impl AccountProvider {
+ 			.map_err(Into::into)
+ 	}
+ 
+-	/// Sign transaction with hardware wallet.
+-	pub fn sign_with_hardware(&self, address: Address, transaction: &[u8]) -> Result<Signature, SignError> {
+-		match self.hardware_store.as_ref().map(|s| s.sign_transaction(&address, transaction)) {
+-			None | Some(Err(HardwareError::KeyNotFound)) => Err(SignError::NotFound),
+-			Some(Err(e)) => Err(From::from(e)),
+-			Some(Ok(s)) => Ok(s),
+-		}
+-	}
++//	/// Sign transaction with hardware wallet.
++//	pub fn sign_with_hardware(&self, address: Address, transaction: &[u8]) -> Result<Signature, SignError> {
++//		match self.hardware_store.as_ref().map(|s| s.sign_transaction(&address, transaction)) {
++//			None | Some(Err(SignError::NotFound)) => Err(SignError::NotFound),
++//			Some(Err(e)) => Err(From::from(e)),
++//			Some(Ok(s)) => Ok(s),
++//		}
++//	}
+ }
+ 
+ #[cfg(test)]
+diff --git a/ethcore/src/lib.rs b/ethcore/src/lib.rs
+index 10436bf7e..180884def 100644
+--- a/ethcore/src/lib.rs
++++ b/ethcore/src/lib.rs
+@@ -105,7 +105,7 @@ extern crate linked_hash_map;
+ extern crate lru_cache;
+ extern crate ethcore_stratum;
+ extern crate ethabi;
+-extern crate hardware_wallet;
++//extern crate hardware_wallet;
+ extern crate stats;
+ extern crate itertools;
+ 
+diff --git a/ethcrypto/Cargo.toml b/ethcrypto/Cargo.toml
+index 7d749d9ca..3e557c01e 100644
+--- a/ethcrypto/Cargo.toml
++++ b/ethcrypto/Cargo.toml
+@@ -6,7 +6,7 @@ authors = ["Parity Technologies <admin@parity.io>"]
+ [dependencies]
+ rust-crypto = "0.2.36"
+ tiny-keccak = "1.2"
+-eth-secp256k1 = { git = "https://github.com/paritytech/rust-secp256k1" }
++eth-secp256k1 = { git = "https://github.com/paritytech/rust-secp256k1", rev = "98ad9b9ecae44a563efdd64273bcebc6b4ed81c6" }
+ ethkey = { path = "../ethkey" }
+ ethcore-bigint = { path = "../util/bigint" }
+ 
+diff --git a/ethkey/Cargo.toml b/ethkey/Cargo.toml
+index 02072e8a1..4ca4ffab8 100644
+--- a/ethkey/Cargo.toml
++++ b/ethkey/Cargo.toml
+@@ -7,7 +7,7 @@ authors = ["Parity Technologies <admin@parity.io>"]
+ rand = "0.3.14"
+ lazy_static = "0.2"
+ tiny-keccak = "1.2"
+-eth-secp256k1 = { git = "https://github.com/paritytech/rust-secp256k1" }
++eth-secp256k1 = { git = "https://github.com/paritytech/rust-secp256k1", rev = "98ad9b9ecae44a563efdd64273bcebc6b4ed81c6" }
+ rustc-serialize = "0.3"
+ docopt = { version = "0.6", optional = true }
+ ethcore-bigint = { path = "../util/bigint" }
 diff --git a/ipc/hypervisor/Cargo.toml b/ipc/hypervisor/Cargo.toml
-index 21955bd..9fe092b 100644
+index cfb172cfc..eb544777f 100644
 --- a/ipc/hypervisor/Cargo.toml
 +++ b/ipc/hypervisor/Cargo.toml
 @@ -9,7 +9,7 @@ build = "build.rs"
  
  [dependencies]
  ethcore-ipc = { path = "../rpc" }
--nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
-+nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+-nanomsg = { git = "https://github.com/paritytech/nanomsg.rs.git", branch = "parity-1.7" }
++nanomsg = { git = "https://github.com/paukstis/nanomsg.rs.git", rev = "89492cbb3f84ad95f3625a6e72a0d9ba0cccc09b" }
  ethcore-ipc-nano = { path = "../nano" }
  semver = "0.5"
  log = "0.3"
 diff --git a/ipc/nano/Cargo.toml b/ipc/nano/Cargo.toml
-index 7d559db..9499ae6 100644
+index f8ef39578..6fe8d862f 100644
 --- a/ipc/nano/Cargo.toml
 +++ b/ipc/nano/Cargo.toml
 @@ -8,6 +8,6 @@ license = "GPL-3.0"
  
  [dependencies]
  ethcore-ipc = { path = "../rpc" }
--nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
-+nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+-nanomsg = { git = "https://github.com/paritytech/nanomsg.rs.git", branch = "parity-1.7" }
++nanomsg = { git = "https://github.com/paukstis/nanomsg.rs.git", rev = "89492cbb3f84ad95f3625a6e72a0d9ba0cccc09b" }
  log = "0.3"
  lazy_static = "0.2"
 diff --git a/ipc/rpc/Cargo.toml b/ipc/rpc/Cargo.toml
-index a89d1a9..167043b 100644
+index d817be7ce..f8b16465d 100644
 --- a/ipc/rpc/Cargo.toml
 +++ b/ipc/rpc/Cargo.toml
 @@ -8,6 +8,6 @@ license = "GPL-3.0"
  
  [dependencies]
  ethcore-devtools = { path = "../../devtools" }
--nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
-+nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+-nanomsg = { git = "https://github.com/paritytech/nanomsg.rs.git", branch = "parity-1.7" }
++nanomsg = { git = "https://github.com/paukstis/nanomsg.rs.git", rev = "89492cbb3f84ad95f3625a6e72a0d9ba0cccc09b" }
  ethcore-util = { path = "../../util" }
  semver = "0.5"
 diff --git a/ipc/tests/Cargo.toml b/ipc/tests/Cargo.toml
-index 1e29c5c..21d431a 100644
+index 342b23bf8..11097946b 100644
 --- a/ipc/tests/Cargo.toml
 +++ b/ipc/tests/Cargo.toml
 @@ -11,7 +11,7 @@ path = "run.rs"
  ethcore-ipc = { path = "../rpc" }
  ethcore-devtools = { path = "../../devtools" }
  semver = "0.5"
--nanomsg = { git = "https://github.com/ethcore/nanomsg.rs.git" }
-+nanomsg = { git = "https://github.com/thehydroimpulse/nanomsg.rs.git", rev = "6a356eac77d60d0f4b23d3b1ffcebb49b1026829" }
+-nanomsg = { git = "https://github.com/paritytech/nanomsg.rs.git", branch = "parity-1.7" }
++nanomsg = { git = "https://github.com/paukstis/nanomsg.rs.git", rev = "89492cbb3f84ad95f3625a6e72a0d9ba0cccc09b" }
  ethcore-ipc-nano = { path = "../nano" }
  ethcore-util = { path = "../../util" }
  log = "0.3"
+diff --git a/rpc/src/v1/helpers/dispatch.rs b/rpc/src/v1/helpers/dispatch.rs
+index b18152dc9..7517a9d0b 100644
+--- a/rpc/src/v1/helpers/dispatch.rs
++++ b/rpc/src/v1/helpers/dispatch.rs
+@@ -136,16 +136,16 @@ impl<C: MiningBlockChainClient, M: MinerService> Dispatcher for FullDispatcher<C
+ 				data: filled.data,
+ 			};
+ 
+-			if accounts.is_hardware_address(address) {
+-				hardware_signature(&*accounts, address, t, network_id).map(WithToken::No)
+-			} else {
++//			if accounts.is_hardware_address(address) {
++//				hardware_signature(&*accounts, address, t, network_id).map(WithToken::No)
++//			} else {
+ 				let hash = t.hash(network_id);
+ 				let signature = try_bf!(signature(&*accounts, address, hash, password));
+ 				Ok(signature.map(|sig| {
+ 					SignedTransaction::new(t.with_signature(sig, network_id))
+ 						.expect("Transaction was signed by AccountsProvider; it never produces invalid signatures; qed")
+ 				}))
+-			}
++//			}
+ 		}).boxed()
+ 	}
+ 
+@@ -308,9 +308,9 @@ impl Dispatcher for LightDispatcher {
+ 				data: filled.data,
+ 			};
+ 
+-			if accounts.is_hardware_address(address) {
+-				return hardware_signature(&*accounts, address, t, network_id).map(WithToken::No)
+-			}
++//			if accounts.is_hardware_address(address) {
++//				return hardware_signature(&*accounts, address, t, network_id).map(WithToken::No)
++//			}
+ 
+ 			let hash = t.hash(network_id);
+ 			let signature = signature(&*accounts, address, hash, password)?;
+@@ -491,25 +491,25 @@ fn signature(accounts: &AccountProvider, address: Address, hash: H256, password:
+ }
+ 
+ // obtain a hardware signature from the given account.
+-fn hardware_signature(accounts: &AccountProvider, address: Address, t: Transaction, network_id: Option<u64>)
+-	-> Result<SignedTransaction, Error>
+-{
+-	debug_assert!(accounts.is_hardware_address(address));
+-
+-	let mut stream = rlp::RlpStream::new();
+-	t.rlp_append_unsigned_transaction(&mut stream, network_id);
+-	let signature = accounts.sign_with_hardware(address, &stream.as_raw())
+-		.map_err(|e| {
+-			debug!(target: "miner", "Error signing transaction with hardware wallet: {}", e);
+-			errors::account("Error signing transaction with hardware wallet", e)
+-		})?;
+-
+-	SignedTransaction::new(t.with_signature(signature, network_id))
+-		.map_err(|e| {
+-		  debug!(target: "miner", "Hardware wallet has produced invalid signature: {}", e);
+-		  errors::account("Invalid signature generated", e)
+-		})
+-}
++//fn hardware_signature(accounts: &AccountProvider, address: Address, t: Transaction, network_id: Option<u64>)
++//	-> Result<SignedTransaction, Error>
++//{
++//	debug_assert!(accounts.is_hardware_address(address));
++//
++//	let mut stream = rlp::RlpStream::new();
++//	t.rlp_append_unsigned_transaction(&mut stream, network_id);
++//	let signature = accounts.sign_with_hardware(address, &stream.as_raw())
++//		.map_err(|e| {
++//			debug!(target: "miner", "Error signing transaction with hardware wallet: {}", e);
++//			errors::account("Error signing transaction with hardware wallet", e)
++//		})?;
++//
++//	SignedTransaction::new(t.with_signature(signature, network_id))
++//		.map_err(|e| {
++//		  debug!(target: "miner", "Hardware wallet has produced invalid signature: {}", e);
++//		  errors::account("Invalid signature generated", e)
++//		})
++//}
+ 
+ fn decrypt(accounts: &AccountProvider, address: Address, msg: Bytes, password: SignWith) -> Result<WithToken<Bytes>, Error> {
+ 	match password.clone() {
+diff --git a/rpc/src/v1/impls/light/parity.rs b/rpc/src/v1/impls/light/parity.rs
+index 332088dd6..34341ae76 100644
+--- a/rpc/src/v1/impls/light/parity.rs
++++ b/rpc/src/v1/impls/light/parity.rs
+@@ -102,15 +102,15 @@ impl Parity for ParityClient {
+ 		)
+ 	}
+ 
+-	fn hardware_accounts_info(&self) -> Result<BTreeMap<H160, HwAccountInfo>, Error> {
+-		let store = &self.accounts;
+-		let info = store.hardware_accounts_info().map_err(|e| errors::account("Could not fetch account info.", e))?;
+-		Ok(info
+-			.into_iter()
+-			.map(|(a, v)| (H160::from(a), HwAccountInfo { name: v.name, manufacturer: v.meta }))
+-			.collect()
+-		)
+-	}
++//	fn hardware_accounts_info(&self) -> Result<BTreeMap<H160, HwAccountInfo>, Error> {
++//		let store = &self.accounts;
++//		let info = store.hardware_accounts_info().map_err(|e| errors::account("Could not fetch account info.", e))?;
++//		Ok(info
++//			.into_iter()
++//			.map(|(a, v)| (H160::from(a), HwAccountInfo { name: v.name, manufacturer: v.meta }))
++//			.collect()
++//		)
++//	}
+ 
+ 	fn default_account(&self, meta: Self::Metadata) -> BoxFuture<H160, Error> {
+ 		let dapp_id = meta.dapp_id();
+diff --git a/rpc/src/v1/impls/parity.rs b/rpc/src/v1/impls/parity.rs
+index 820aa6670..8e63186f7 100644
+--- a/rpc/src/v1/impls/parity.rs
++++ b/rpc/src/v1/impls/parity.rs
+@@ -134,15 +134,15 @@ impl<C, M, S: ?Sized, U> Parity for ParityClient<C, M, S, U> where
+ 		)
+ 	}
+ 
+-	fn hardware_accounts_info(&self) -> Result<BTreeMap<H160, HwAccountInfo>, Error> {
+-		let store = take_weak!(self.accounts);
+-		let info = store.hardware_accounts_info().map_err(|e| errors::account("Could not fetch account info.", e))?;
+-		Ok(info
+-			.into_iter()
+-			.map(|(a, v)| (H160::from(a), HwAccountInfo { name: v.name, manufacturer: v.meta }))
+-			.collect()
+-		)
+-	}
++//	fn hardware_accounts_info(&self) -> Result<BTreeMap<H160, HwAccountInfo>, Error> {
++//		let store = take_weak!(self.accounts);
++//		let info = store.hardware_accounts_info().map_err(|e| errors::account("Could not fetch account info.", e))?;
++//		Ok(info
++//			.into_iter()
++//			.map(|(a, v)| (H160::from(a), HwAccountInfo { name: v.name, manufacturer: v.meta }))
++//			.collect()
++//		)
++//	}
+ 
+ 	fn default_account(&self, meta: Self::Metadata) -> BoxFuture<H160, Error> {
+ 		let dapp_id = meta.dapp_id();
+diff --git a/rpc/src/v1/traits/parity.rs b/rpc/src/v1/traits/parity.rs
+index 10e3b54bd..3e559b7e2 100644
+--- a/rpc/src/v1/traits/parity.rs
++++ b/rpc/src/v1/traits/parity.rs
+@@ -40,9 +40,9 @@ build_rpc_trait! {
+ 		#[rpc(name = "parity_accountsInfo")]
+ 		fn accounts_info(&self, Trailing<DappId>) -> Result<BTreeMap<H160, AccountInfo>, Error>;
+ 
+-		/// Returns hardware accounts information.
+-		#[rpc(name = "parity_hardwareAccountsInfo")]
+-		fn hardware_accounts_info(&self) -> Result<BTreeMap<H160, HwAccountInfo>, Error>;
++//		/// Returns hardware accounts information.
++//		#[rpc(name = "parity_hardwareAccountsInfo")]
++//		fn hardware_accounts_info(&self) -> Result<BTreeMap<H160, HwAccountInfo>, Error>;
+ 
+ 		/// Returns default account for dapp.
+ 		#[rpc(meta, name = "parity_defaultAccount")]
 diff --git a/rpc_client/Cargo.toml b/rpc_client/Cargo.toml
-index e5c8e9b..00d9039 100644
+index 959ed50f6..09068e4ed 100644
 --- a/rpc_client/Cargo.toml
 +++ b/rpc_client/Cargo.toml
-@@ -17,7 +17,7 @@ serde_json = "0.8"
+@@ -15,7 +15,7 @@ serde_json = "0.9"
  tempdir = "0.3.5"
  url = "1.2.0"
- jsonrpc-core = { git = "https://github.com/ethcore/jsonrpc.git" }
--ws = { git = "https://github.com/ethcore/ws-rs.git", branch = "mio-upstream-stable" }
+ jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc.git", branch = "parity-1.6" }
+-ws = { git = "https://github.com/paritytech/ws-rs.git", branch = "mio-upstream-stable" }
 +ws = { git = "https://github.com/paukstis/ws-rs.git", branch = "mio-upstream-stable" }
  ethcore-rpc = { path = "../rpc" }
  ethcore-signer = { path = "../signer" }
  ethcore-util = { path = "../util" }
 diff --git a/signer/Cargo.toml b/signer/Cargo.toml
-index abf5d77..61771ee 100644
+index df5e906ee..d6880475d 100644
 --- a/signer/Cargo.toml
 +++ b/signer/Cargo.toml
-@@ -16,7 +16,7 @@ jsonrpc-core = { git = "https://github.com/ethcore/jsonrpc.git" }
+@@ -16,7 +16,7 @@ jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc.git", branch = "pa
  log = "0.3"
  env_logger = "0.3"
- parity-dapps-glue = { version = "1.4", optional = true }
--ws = { git = "https://github.com/ethcore/ws-rs.git", branch = "mio-upstream-stable" }
+ parity-dapps-glue = { version = "1.7", optional = true }
+-ws = { git = "https://github.com/paritytech/ws-rs.git", branch = "mio-upstream-stable" }
 +ws = { git = "https://github.com/paukstis/ws-rs.git", branch = "mio-upstream-stable" }
  ethcore-util = { path = "../util" }
  ethcore-io = { path = "../util/io" }
  ethcore-rpc = { path = "../rpc" }
+diff --git a/util/Cargo.toml b/util/Cargo.toml
+index f08989c1b..034b509c5 100644
+--- a/util/Cargo.toml
++++ b/util/Cargo.toml
+@@ -16,7 +16,7 @@ rand = "0.3.12"
+ time = "0.1.34"
+ rocksdb = { git = "https://github.com/paritytech/rust-rocksdb" }
+ lazy_static = "0.2"
+-eth-secp256k1 = { git = "https://github.com/paritytech/rust-secp256k1" }
++eth-secp256k1 = { git = "https://github.com/paritytech/rust-secp256k1", rev = "98ad9b9ecae44a563efdd64273bcebc6b4ed81c6" }
+ rust-crypto = "0.2.34"
+ elastic-array = { git = "https://github.com/paritytech/elastic-array" }
+ rlp = { path = "rlp" }

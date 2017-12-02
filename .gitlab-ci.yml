@@ -2,7 +2,7 @@ stages:
   - build
 
 variables:
-  MY_BRANCH: "master"
+  MY_BRANCH: "v1.6.10"
 
 job1:
   stage: build
@@ -20,10 +20,9 @@ job1:
         git clean -f &&
         cargo clean &&
         cargo update --package gcc --precise 0.3.41 &&
-        cargo update --package openssl --precise 0.9.4 &&
-        OPENSSL_INCLUDE_DIR=/usr/include OPENSSL_LIB_DIR=/usr/lib cargo build --release &&
+        OPENSSL_DIR=/usr cargo build --release &&
         strip target/release/parity &&
         cp target/release/parity ~/parity_${VERSION}_amd64_freebsd.${COMMIT} ;
       fi
   only:
-    - master
+    - v1.6

@@ -1,16 +1,21 @@
-[![build status](https://mug.uoga.net/freebsd/freebsd_parity/badges/master/build.svg)](https://mug.uoga.net/freebsd/freebsd_parity/builds)
-### Building [Parity](https://github.com/ethcore/parity) on [FreeBSD](https://www.freebsd.org)
+### Building [Parity](https://github.com/paritytech/parity) on [FreeBSD](https://www.freebsd.org)
 
 ## Status
 Tested with following components:
-- FreeBSD 11
-- Rust 1.13, 1.14
-- Parity master branch
+- FreeBSD 11.1
+- Rust 1.22
+- Parity 1.6.10
+
+## Patch details
+- gcc crate building on FreeBSD, needs at least 0.3.41
+- nanomsg bits building on FreeBSD
+- rust-secp256k1 code before android changes, otherwise building fails with some errors abouts missing android bits
+- harware wallet code disabled, required libusb is not available on FreeBSD
 
 ## Requirements
 To build Parity on FreeBSD a freshly installed system or jail needs following packages to be installed:
 ```shell
-pkg install nanomsg cargo git
+pkg install git rust nanomsg
 ```
 For runtime only `nanomsg` is required.
 
@@ -18,8 +23,8 @@ For runtime only `nanomsg` is required.
 
 ```shell
 cd ~/src
-git clone https://github.com/ethcore/parity.git
-git clone https://mug.uoga.net/freebsd/freebsd_parity.git
+git clone https://github.com/paritytech/parity.git -b v1.6.10 parity
+git clone https://github.com/paukstis/freebsd_parity.git -b v1.6 freebsd_parity
 ```
 
 Check if patch will succeed with --dry-run, apply it, then clean .orig files
@@ -34,8 +39,7 @@ To build after patching:
 ```shell
 cargo clean
 cargo update --package gcc --precise 0.3.41
-cargo update --package openssl --precise 0.9.4
-OPENSSL_INCLUDE_DIR=/usr/include OPENSSL_LIB_DIR=/usr/lib cargo build --release
+OPENSSL_DIR=/usr cargo build --release
 ```
 
 ## Reverting patch
