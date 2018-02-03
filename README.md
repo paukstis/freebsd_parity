@@ -1,5 +1,4 @@
-[![build status](https://mug.uoga.net/freebsd/freebsd_parity/badges/v1.4/build.svg)](https://mug.uoga.net/freebsd/freebsd_parity/builds)
-### Building [Parity](https://github.com/ethcore/parity) on [FreeBSD](https://www.freebsd.org)
+### Building [Parity](https://github.com/paritytech/parity) on [FreeBSD](https://www.freebsd.org)
 
 ## Status
 Tested with following components:
@@ -18,7 +17,7 @@ For runtime only `nanomsg` is required.
 ```shell
 cd ~/src
 git clone https://github.com/ethcore/parity.git -b v1.4.9 parity
-git clone https://mug.uoga.net/freebsd/freebsd_parity.git -b v1.4 freebsd_parity
+git clone https://github.com/paukstis/freebsd_parity.git -b v1.4 freebsd_parity
 ```
 
 Check if patch will succeed with --dry-run, apply it, then clean .orig files
