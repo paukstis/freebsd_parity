@@ -1,11 +1,10 @@
-[![build status](https://mug.uoga.net/freebsd/freebsd_parity/badges/master/build.svg)](https://mug.uoga.net/freebsd/freebsd_parity/builds)
-### Building [Parity](https://github.com/ethcore/parity) on [FreeBSD](https://www.freebsd.org)
+### Building [Parity](https://github.com/paritytech/parity) on [FreeBSD](https://www.freebsd.org)
 
 ## Status
 Tested with following components:
 - FreeBSD 11
 - Rust 1.13, 1.14
-- Parity master branch
+- Parity v1.5 branch
 
 ## Requirements
 To build Parity on FreeBSD a freshly installed system or jail needs following packages to be installed:
@@ -18,8 +17,8 @@ For runtime only `nanomsg` is required.
 
 ```shell
 cd ~/src
-git clone https://github.com/ethcore/parity.git
-git clone https://mug.uoga.net/freebsd/freebsd_parity.git
+git clone https://github.com/paritytech/parity.git -b v1.5.12 parity
+git clone https://github.com/paukstis/freebsd_parity.git -b v1.5 freebsd_parity
 ```
 
 Check if patch will succeed with --dry-run, apply it, then clean .orig files
