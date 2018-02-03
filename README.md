@@ -1,4 +1,4 @@
-### Building [Parity](https://github.com/ethcore/parity) on [FreeBSD](https://www.freebsd.org)
+### Building [Parity](https://github.com/paritytech/parity) on [FreeBSD](https://www.freebsd.org)
 
 ## Status
 See corresponding branches:
